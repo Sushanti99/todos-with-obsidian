@@ -12,21 +12,26 @@ No AI API key needed. No database IDs to copy. One command to set up.
 # Daily Note — Tuesday, April 7 2026
 
 ## Calendar — Today's Events
-- 10:30–11:15 :: NLP HW5, submit
-- 19:00–20:00 :: Call with Arya
+- 09:00–09:30 :: Standup
+- 14:00–15:00 :: Product review with design team
+- 18:00–19:00 :: Gym
 
 ## Email — Action Items
-- [ ] Re: Q2 proposal *(from: alice@company.com)*
+- [ ] Follow up on contract draft *(from: legal@company.com)*
+- [ ] Respond to interview request *(from: recruiter@startup.io)*
 
 ## Notion Tasks
-- [ ] Write architecture doc · Due: Apr 10 · [Open](https://notion.so/...)
+- [ ] Finish Q2 roadmap · Due: Apr 9 · [Open](https://notion.so/...)
+- [ ] Review pull request for onboarding flow
 
 ## Open Obsidian Tasks
-- [ ] Publish Substack piece *(from: [[writing for the sake of writing]])*
+- [ ] Read chapter 3 of [[Thinking Fast and Slow]] *(from: [[Books/reading-list]])*
+- [ ] Write up notes from yesterday's user interview
 
 ## Reading — Today's Links
-- [Rashomon Memory: Argumentation-Driven Retrieval for Agent Memory](https://arxiv.org/...) *(arXiv AI)*
-- [Chrome finally adds a better way to deal with too many tabs](https://techcrunch.com/...) *(TechCrunch)*
+- [The Bitter Lesson, 5 Years Later](https://arxiv.org/...) *(arXiv AI)*
+- [Why most productivity systems fail after 30 days](https://every.to/...) *(Every)*
+- [OpenAI announces new reasoning model](https://techcrunch.com/...) *(TechCrunch)*
 ```
 
 The reading list is personalised — it reads your vault tags, note titles, and folder names to figure out what you care about, then ranks today's articles from Hacker News, arXiv, TechCrunch, and others accordingly. No configuration needed.
