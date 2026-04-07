@@ -63,6 +63,25 @@ python main.py daily
 
 That's it. Open Obsidian and your note is there.
 
+---
+
+## Using Claude Code as your AI layer
+
+If you use [Claude Code](https://claude.ai/code), you don't need any extra API key for AI features. Claude Code can read your vault directly — so once your daily note is generated, just open Claude Code in your vault directory and ask:
+
+```
+what should i focus on today?
+summarise my open tasks
+what emails need a reply?
+```
+
+Claude Code has full access to your vault, your daily note, and anything you ask it to cross-reference. It's the fastest way to think through your day without leaving your terminal.
+
+```bash
+cd "/path/to/your/Obsidian Vault"
+claude
+```
+
 **To run it every morning automatically**, add a cron job:
 
 ```bash
