@@ -13,6 +13,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+*.egg-info/
 
 # macOS
 .DS_Store

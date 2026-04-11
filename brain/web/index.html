@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brain</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f0e8;
+      --panel: rgba(255, 252, 247, 0.82);
+      --line: #d4c3b2;
+      --text: #1f1b17;
+      --muted: #6c635c;
+      --accent: #bd4f2b;
+      --accent-dark: #8c3518;
+      --user: #fff4ec;
+      --assistant: #f7f5ff;
+      --error: #ffe4de;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      background:
+        radial-gradient(circle at top left, rgba(189, 79, 43, 0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(24, 92, 87, 0.16), transparent 30%),
+        linear-gradient(180deg, #f8f4ef 0%, #efe4d7 100%);
+      min-height: 100vh;
+    }
+    .shell {
+      max-width: 980px;
+      margin: 24px auto;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+      background: var(--panel);
+      box-shadow: 0 30px 80px rgba(74, 46, 25, 0.14);
+    }
+    header {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 248, 239, 0.85);
+    }
+    .title { font-size: 24px; font-weight: 700; letter-spacing: 0.03em; }
+    .meta { color: var(--muted); font-size: 14px; }
+    .actions { display: flex; gap: 10px; }
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font: inherit;
+    }
+    button.secondary { background: #245d59; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    #messages {
+      height: min(62vh, 720px);
+      overflow-y: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .message {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: white;
+      line-height: 1.5;
+    }
+    .message.user { background: var(--user); }
+    .message.assistant { background: var(--assistant); }
+    .message.system { background: #f3efe9; }
+    .message.error { background: var(--error); }
+    .message .label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 18px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 250, 245, 0.75);
+    }
+    textarea {
+      resize: none;
+      min-height: 88px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      font: inherit;
+      background: white;
+    }
+    #status {
+      padding: 0 18px 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    pre {
+      overflow-x: auto;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    @media (max-width: 720px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .actions { width: 100%; }
+      .actions button { flex: 1; }
+      form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div>
+        <div class="title">brain</div>
+        <div class="meta">
+          <span id="agent">agent: unknown</span>
+          <span> · </span>
+          <span id="session">session: disconnected</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="dailyBtn" type="button">Generate Daily</button>
+        <button id="endBtn" type="button">End &amp; Summarize</button>
+      </div>
+    </header>
+
+    <div id="messages"></div>
+
+    <form id="composer">
+      <textarea id="input" placeholder="Ask Brain to work on the vault. Enter sends; Shift+Enter adds a newline."></textarea>
+      <button id="sendBtn" type="submit">Send</button>
+    </form>
+    <div id="status">Connecting...</div>
+  </div>
+
+  <script>
+    const messages = document.getElementById("messages");
+    const statusEl = document.getElementById("status");
+    const sessionEl = document.getElementById("session");
+    const agentEl = document.getElementById("agent");
+    const inputEl = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+    const dailyBtn = document.getElementById("dailyBtn");
+    const endBtn = document.getElementById("endBtn");
+    const composer = document.getElementById("composer");
+
+    let socket = null;
+    let activeAssistantMessage = null;
+    let running = false;
+    let reconnectTimer = null;
+    let suppressReconnect = false;
+
+    function setRunning(value) {
+      running = value;
+      inputEl.disabled = value;
+      sendBtn.disabled = value;
+      dailyBtn.disabled = value;
+    }
+
+    function appendMessage(kind, label, content) {
+      const box = document.createElement("div");
+      box.className = `message ${kind}`;
+      const header = document.createElement("div");
+      header.className = "label";
+      header.textContent = label;
+      const body = document.createElement("div");
+      body.innerHTML = marked.parse(content || "");
+      box.append(header, body);
+      messages.appendChild(box);
+      messages.scrollTop = messages.scrollHeight;
+      return { box, body };
+    }
+
+    function updateStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function connect() {
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+      }
+      const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+      socket = new WebSocket(`${protocol}://${window.location.host}/ws`);
+      suppressReconnect = false;
+
+      socket.addEventListener("open", () => updateStatus("Connected."));
+      socket.addEventListener("close", () => {
+        if (suppressReconnect) {
+          updateStatus("Another browser tab already owns the active Brain session.");
+          return;
+        }
+        updateStatus("Disconnected. Retrying...");
+        setRunning(false);
+        activeAssistantMessage = null;
+        reconnectTimer = setTimeout(connect, 1000);
+      });
+      socket.addEventListener("message", (event) => {
+        const payload = JSON.parse(event.data);
+        if (payload.type === "session") {
+          sessionEl.textContent = `session: ${payload.session_id}`;
+          agentEl.textContent = `agent: ${payload.agent}`;
+          return;
+        }
+        if (payload.type === "session_conflict") {
+          suppressReconnect = true;
+          appendMessage("error", "Session", payload.message);
+          if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.close();
+          }
+          return;
+        }
+        if (payload.type === "status") {
+          updateStatus(payload.state === "thinking" ? "Thinking..." : payload.state);
+          return;
+        }
+        if (payload.type === "chunk") {
+          if (!activeAssistantMessage) {
+            activeAssistantMessage = appendMessage("assistant", "Assistant", "");
+          }
+          activeAssistantMessage.body.innerHTML = marked.parse((activeAssistantMessage.body.innerText || "") + payload.content);
+          messages.scrollTop = messages.scrollHeight;
+          setRunning(true);
+          return;
+        }
+        if (payload.type === "done") {
+          if (payload.content) {
+            if (!activeAssistantMessage) {
+              activeAssistantMessage = appendMessage("assistant", "Assistant", payload.content);
+            } else if (!activeAssistantMessage.body.innerText.trim()) {
+              activeAssistantMessage.body.innerHTML = marked.parse(payload.content);
+            }
+          }
+          setRunning(false);
+          updateStatus("Ready.");
+          activeAssistantMessage = null;
+          return;
+        }
+        if (payload.type === "busy") {
+          appendMessage("system", "Busy", payload.message);
+          return;
+        }
+        if (payload.type === "error") {
+          appendMessage("error", "Error", payload.message);
+          activeAssistantMessage = null;
+          setRunning(false);
+          updateStatus("Ready.");
+        }
+      });
+    }
+
+    composer.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const content = inputEl.value.trim();
+      if (!content || !socket || socket.readyState !== WebSocket.OPEN || running) return;
+      appendMessage("user", "You", content);
+      socket.send(JSON.stringify({ type: "message", content }));
+      inputEl.value = "";
+      setRunning(true);
+      updateStatus("Thinking...");
+    });
+
+    inputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        composer.requestSubmit();
+      }
+    });
+
+    dailyBtn.addEventListener("click", async () => {
+      updateStatus("Generating daily note...");
+      const response = await fetch("/api/daily", { method: "POST" });
+      const payload = await response.json();
+      if (response.ok) {
+        appendMessage("system", "Daily", `Generated: \`${payload.path}\``);
+        updateStatus("Ready.");
+      } else {
+        appendMessage("error", "Daily", payload.message || "Failed to generate daily note.");
+        updateStatus("Ready.");
+      }
+    });
+
+    endBtn.addEventListener("click", async () => {
+      updateStatus("Ending session...");
+      const response = await fetch("/api/session/end", { method: "POST" });
+      const payload = await response.json();
+      if (response.ok) {
+        appendMessage("system", "Summary", `Session summary written to \`${payload.path}\``);
+        sessionEl.textContent = "session: closed";
+      } else {
+        appendMessage("error", "Summary", payload.message || "Failed to end session.");
+      }
+      setRunning(false);
+      updateStatus("Ready.");
+    });
+
+    connect();
+  </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+"""FastAPI server and websocket bridge."""
+
+from __future__ import annotations
+
+import asyncio
+import os
+import webbrowser
+from dataclasses import dataclass
+from pathlib import Path
+from threading import Timer
+
+import uvicorn
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse, JSONResponse
+
+from brain.agent_backends import get_backend
+from brain.daily import generate_daily_note
+from brain.env_config import integration_status
+from brain.models import AppConfig, EnvConfig
+from brain.prompts import build_chat_prompt, build_codex_prompt
+from brain.session import SessionManager
+from brain.summarizer import build_summary_prompt, fallback_summary, write_session_summary
+from brain.vault import diff_modified_files, resolve_vault_paths, snapshot_vault_mtimes
+
+
+@dataclass(slots=True)
+class AppRuntime:
+    app_cfg: AppConfig
+    env_cfg: EnvConfig
+    session_manager: SessionManager
+
+
+def create_app(runtime: AppRuntime) -> FastAPI:
+    app = FastAPI()
+    app.state.runtime = runtime
+
+    @app.get("/")
+    async def index():
+        return FileResponse(Path(__file__).parent / "web" / "index.html")
+
+    @app.get("/api/status")
+    async def get_status():
+        backend = get_backend(runtime.app_cfg)
+        backend_status = backend.validate_installation()
+        session = runtime.session_manager.current_session()
+        return JSONResponse(
+            {
+                "vault_path": str(runtime.app_cfg.vault.path),
+                "agent": runtime.app_cfg.agent,
+                "backend": {
+                    "installed": backend_status.installed,
+                    "command": backend_status.command,
+                    "resolved_path": backend_status.resolved_path,
+                    "version": backend_status.version,
+                    "error": backend_status.error,
+                },
+                "server": {
+                    "host": runtime.app_cfg.server.host,
+                    "port": runtime.app_cfg.server.port,
+                },
+                "folders": {
+                    "daily": runtime.app_cfg.vault.daily_folder,
+                    "core": runtime.app_cfg.vault.core_folder,
+                    "references": runtime.app_cfg.vault.references_folder,
+                    "thoughts": runtime.app_cfg.vault.thoughts_folder,
+                    "system": runtime.app_cfg.vault.system_folder,
+                },
+                "integrations": integration_status(runtime.env_cfg),
+                "session": {
+                    "session_id": session.session_id if session else None,
+                    "state": session.lifecycle_state if session else "idle",
+                    "running": session.running if session else False,
+                },
+            }
+        )
+
+    @app.post("/api/daily")
+    async def post_daily():
+        try:
+            path = generate_daily_note(runtime.app_cfg, runtime.env_cfg, force=False)
+            return JSONResponse({"status": "ok", "path": str(path)})
+        except FileExistsError as exc:
+            return JSONResponse({"status": "error", "message": str(exc)}, status_code=409)
+        except Exception as exc:
+            return JSONResponse({"status": "error", "message": str(exc)}, status_code=500)
+
+    @app.post("/api/session/end")
+    async def post_end_session():
+        session = runtime.session_manager.current_session()
+        if session is None:
+            return JSONResponse({"status": "error", "message": "No active session."}, status_code=404)
+        runtime.session_manager.mark_summarizing()
+        await runtime.session_manager.cancel_run()
+        thoughts_dir = resolve_vault_paths(runtime.app_cfg).thoughts
+        backend = get_backend(runtime.app_cfg)
+        summary_text = None
+        try:
+            summary_prompt = build_summary_prompt(session)
+            summary_text = await backend.summarize(summary_prompt, runtime.app_cfg.vault.path, _build_backend_env(runtime.env_cfg))
+        except Exception:
+            summary_text = fallback_summary(session)
+        summary_path = await write_session_summary(thoughts_dir, session, agent_summary_text=summary_text)
+        runtime.session_manager.close_session()
+        return JSONResponse({"status": "ok", "path": str(summary_path)})
+
+    @app.websocket("/ws")
+    async def websocket_endpoint(websocket: WebSocket):
+        await websocket.accept()
+        try:
+            session = await runtime.session_manager.attach_websocket(websocket)
+        except RuntimeError as exc:
+            await websocket.send_json({"type": "session_conflict", "message": str(exc)})
+            await websocket.close(code=1008)
+            return
+
+        await websocket.send_json({"type": "session", "session_id": session.session_id, "agent": session.agent_name})
+
+        try:
+            while True:
+                payload = await websocket.receive_json()
+                message_type = payload.get("type")
+                if message_type == "ping":
+                    await websocket.send_json({"type": "status", "state": "connected"})
+                    continue
+                if message_type == "cancel":
+                    await runtime.session_manager.cancel_run()
+                    await websocket.send_json({"type": "status", "state": "cancelled"})
+                    continue
+                if message_type != "message":
+                    await websocket.send_json({"type": "error", "message": "Unsupported websocket message type."})
+                    continue
+
+                current_session = runtime.session_manager.get_or_create_session()
+                if current_session.running:
+                    await websocket.send_json({"type": "busy", "message": "Agent run already in progress."})
+                    continue
+
+                content = (payload.get("content") or "").strip()
+                if not content:
+                    continue
+
+                runtime.session_manager.add_turn("user", content)
+                run_task = asyncio.create_task(_run_backend_stream(runtime, websocket, content))
+                runtime.session_manager.mark_running(run_task)
+        except WebSocketDisconnect:
+            pass
+        finally:
+            await runtime.session_manager.detach_websocket(websocket)
+
+    return app
+
+
+async def _run_backend_stream(runtime: AppRuntime, websocket: WebSocket, user_message: str) -> None:
+    backend = get_backend(runtime.app_cfg)
+    session = runtime.session_manager.get_or_create_session()
+    vault_paths = resolve_vault_paths(runtime.app_cfg)
+    prompt = (
+        build_chat_prompt(
+            runtime.app_cfg,
+            session,
+            user_message,
+            vault_paths,
+            inject_canonical_prompt=False,
+        )
+        if runtime.app_cfg.agent == "claude-code"
+        else build_codex_prompt(runtime.app_cfg, session, user_message, vault_paths)
+    )
+    before = snapshot_vault_mtimes(runtime.app_cfg.vault.path)
+    assistant_chunks: list[str] = []
+    try:
+        await websocket.send_json({"type": "status", "state": "thinking"})
+        async for event in backend.stream(prompt, runtime.app_cfg.vault.path, _build_backend_env(runtime.env_cfg)):
+            if event.type == "chunk" and event.content:
+                assistant_chunks.append(event.content)
+                await websocket.send_json({"type": "chunk", "content": event.content})
+            elif event.type == "error":
+                after = snapshot_vault_mtimes(runtime.app_cfg.vault.path)
+                modified_files = diff_modified_files(before, after)
+                if assistant_chunks or modified_files:
+                    runtime.session_manager.finish_run("".join(assistant_chunks), modified_files)
+                else:
+                    runtime.session_manager.fail_run()
+                await websocket.send_json({"type": "error", "message": event.content or "Backend error"})
+                return
+        after = snapshot_vault_mtimes(runtime.app_cfg.vault.path)
+        runtime.session_manager.finish_run("".join(assistant_chunks), diff_modified_files(before, after))
+        await websocket.send_json({"type": "done", "content": "".join(assistant_chunks)})
+    except asyncio.CancelledError:
+        after = snapshot_vault_mtimes(runtime.app_cfg.vault.path)
+        modified_files = diff_modified_files(before, after)
+        if assistant_chunks or modified_files:
+            runtime.session_manager.finish_run("".join(assistant_chunks), modified_files)
+        else:
+            runtime.session_manager.fail_run()
+        await websocket.send_json({"type": "error", "message": "Agent run cancelled."})
+        raise
+    except Exception as exc:
+        after = snapshot_vault_mtimes(runtime.app_cfg.vault.path)
+        modified_files = diff_modified_files(before, after)
+        if assistant_chunks or modified_files:
+            runtime.session_manager.finish_run("".join(assistant_chunks), modified_files)
+        else:
+            runtime.session_manager.fail_run()
+        await websocket.send_json({"type": "error", "message": str(exc)})
+
+
+def run_server(app_cfg: AppConfig, env_cfg: EnvConfig, *, open_browser: bool = True) -> None:
+    runtime = AppRuntime(
+        app_cfg=app_cfg,
+        env_cfg=env_cfg,
+        session_manager=SessionManager(app_cfg.agent),
+    )
+    app = create_app(runtime)
+    if open_browser and app_cfg.server.auto_open_browser:
+        Timer(1.0, lambda: webbrowser.open(f"http://{app_cfg.server.host}:{app_cfg.server.port}")).start()
+    uvicorn.run(app, host=app_cfg.server.host, port=app_cfg.server.port)
+
+
+def _build_backend_env(env_cfg: EnvConfig) -> dict[str, str]:
+    env = os.environ.copy()
+    env["GOOGLE_CREDENTIALS_FILE"] = str(env_cfg.google_credentials_file)
+    env["GOOGLE_TOKEN_FILE"] = str(env_cfg.google_token_file)
+    env["NOTION_API_KEY"] = env_cfg.notion_api_key
+    env["NEWS_FEEDS"] = ",".join(env_cfg.news_feeds)
+    return env

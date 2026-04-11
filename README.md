@@ -1,152 +1,118 @@
-# todos-with-obsidian
+# brain
 
-Connects your **Gmail, Google Calendar, and Notion** to your **Obsidian vault** — generating a personalised daily note every morning with everything you need: today's events, unread emails, open tasks, and a reading list curated to your interests.
+`brain` is a local-first personal agent harness on top of an Obsidian vault.
 
-No AI API key needed. No database IDs to copy. One command to set up.
+It can:
+- initialize or convert a vault into Brain format
+- start a local FastAPI server with a minimal browser chat UI
+- run either Claude Code or Codex against the vault
+- generate daily notes from Gmail, Google Calendar, Notion, vault tasks, and news
+- end a session by writing only a markdown summary into `thoughts/`
 
----
+The older flat scripts are still present as compatibility wrappers where needed, but the primary interface is now the installable `brain` CLI.
 
-## What you get each morning
-
-```markdown
-# Daily Note — Tuesday, April 7 2026
-
-## Calendar — Today's Events
-- 09:00–09:30 :: Standup
-- 14:00–15:00 :: Product review with design team
-- 18:00–19:00 :: Gym
-
-## Email — Action Items
-- [ ] Follow up on contract draft *(from: legal@company.com)*
-- [ ] Respond to interview request *(from: recruiter@startup.io)*
-
-## Notion Tasks
-- [ ] Finish Q2 roadmap · Due: Apr 9 · [Open](https://notion.so/...)
-- [ ] Review pull request for onboarding flow
-
-## Open Obsidian Tasks
-- [ ] Read chapter 3 of [[Thinking Fast and Slow]] *(from: [[Books/reading-list]])*
-- [ ] Write up notes from yesterday's user interview
-
-## Reading — Today's Links
-- [The Bitter Lesson, 5 Years Later](https://arxiv.org/...) *(arXiv AI)*
-- [Why most productivity systems fail after 30 days](https://every.to/...) *(Every)*
-- [OpenAI announces new reasoning model](https://techcrunch.com/...) *(TechCrunch)*
-```
-
-The reading list is personalised — it reads your vault tags, note titles, and folder names to figure out what you care about, then ranks today's articles from Hacker News, arXiv, TechCrunch, and others accordingly. No configuration needed.
-
----
-
-## Setup — one command
+## Install
 
 ```bash
-git clone https://github.com/Sushanti99/todos-with-obsidian.git
-cd todos-with-obsidian
-pip install -r requirements.txt
-python setup.py
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[test]'
 ```
 
-`setup.py` opens a browser for each service and saves your credentials to `.env`. It handles:
-- **Google** — opens Cloud Console, watches for `credentials.json`, then runs the OAuth browser flow automatically
-- **Notion** — opens the integrations page, you paste one key, done
+## Onboarding Integrations
 
-Each integration is optional. If you skip one, that section just says *"not connected"* in your daily note.
-
----
-
-## Run it
+The old onboarding flow now lives in `bootstrap.py`:
 
 ```bash
-python main.py daily
+python bootstrap.py
 ```
 
-That's it. Open Obsidian and your note is there.
+It writes local credentials into `.env`. Gmail, Calendar, Notion, and custom RSS feeds remain optional.
 
----
-
-## Using Claude Code as your AI layer
-
-If you use [Claude Code](https://claude.ai/code), you don't need any extra API key for AI features. Claude Code can read your vault directly — so once your daily note is generated, just open Claude Code in your vault directory and ask:
-
-```
-what should i focus on today?
-summarise my open tasks
-what emails need a reply?
-```
-
-Claude Code has full access to your vault, your daily note, and anything you ask it to cross-reference. It's the fastest way to think through your day without leaving your terminal.
+## Initialize A Vault
 
 ```bash
-cd "/path/to/your/Obsidian Vault"
-claude
+brain init --vault /absolute/path/to/vault --agent claude-code
 ```
 
-**To run it every morning automatically**, add a cron job:
+This creates any missing Brain folders and writes:
+- `system/brain.config.yaml`
+- `system/CLAUDE.md`
+
+Existing compatible folder names such as `Daily/` are preserved through config mapping instead of being renamed automatically.
+
+## Start The App
 
 ```bash
-# open crontab
-crontab -e
-
-# add this line — runs at 8am daily
-0 8 * * * cd /path/to/todos-with-obsidian && python main.py daily
+brain start --vault /absolute/path/to/vault
 ```
 
-**To use a different vault:**
+This starts the local server and opens the browser UI by default. The UI supports:
+- one active websocket session
+- streaming responses
+- `Generate Daily`
+- `End & Summarize`
+
+## Generate Today’s Daily Note
 
 ```bash
-python main.py daily --vault /path/to/your/vault
+brain daily --vault /absolute/path/to/vault
 ```
 
----
+By default, Brain refuses to overwrite today’s existing daily note.
 
-## Personalising your reading list
+## Status
 
-The reading list works out of the box with no config — it learns your interests from your vault.
-
-To add custom RSS feeds, add this to your `.env`:
-
-```env
-NEWS_FEEDS=https://yourblog.com/rss,https://somepodcast.com/feed
+```bash
+brain status --vault /absolute/path/to/vault
 ```
 
-Default sources: Hacker News · TechCrunch · The Verge · arXiv AI · VentureBeat · MIT Technology Review
+This reports:
+- vault path
+- configured agent
+- backend binary path and version
+- folder mapping
+- integration readiness
 
----
+## Compatibility
 
-## Google setup (if you get stuck)
+`main.py` now delegates to the new CLI:
 
-After running `setup.py`, if you see a 403 error about APIs not enabled:
-
-1. [Enable Gmail API](https://console.cloud.google.com/apis/library/gmail.googleapis.com)
-2. [Enable Google Calendar API](https://console.cloud.google.com/apis/library/calendar-json.googleapis.com)
-3. Wait 60 seconds, run `python main.py daily` again
-
----
-
-## Project structure
-
-```
-setup.py             One-command setup (opens browser for each integration)
-main.py              Entry point — run `python main.py daily`
-obsidian_reader.py   Reads and parses the Obsidian vault
-gmail_client.py      Gmail OAuth2 integration
-calendar_client.py   Google Calendar integration
-notion_client.py     Notion API — reads all pages and databases shared with integration
-news_client.py       Fetches and ranks articles from RSS/HN by vault interests
-context_builder.py   Aggregates all sources into one bundle
-daily_note.py        Renders and writes the daily markdown note
-config.py            Central config, reads from .env
+```bash
+python main.py daily --vault /absolute/path/to/vault
+python main.py chat --vault /absolute/path/to/vault
 ```
 
----
+`python main.py chat` is treated as `brain start`.
 
-## Contributing
+## Package Layout
 
-PRs welcome. The codebase is intentionally flat and simple — no frameworks, no async, no vector DBs. Each integration is a single file that fails independently, so adding new sources (Linear, GitHub Issues, Spotify, etc.) is straightforward.
+```text
+brain/
+├── cli.py
+├── app_config.py
+├── env_config.py
+├── init_vault.py
+├── vault.py
+├── prompts.py
+├── agent_backends.py
+├── session.py
+├── summarizer.py
+├── daily.py
+├── integration_context.py
+├── server.py
+├── models.py
+└── web/index.html
+```
 
----
+## Tests
 
-## License
+```bash
+.venv/bin/python -m pytest -q
+```
 
-MIT
+## Notes
+
+- `setup.py` is now a packaging shim for editable installs.
+- `bootstrap.py` is the interactive integration setup script.
+- Optional integrations fail independently so the core app can still run with only a vault and a local agent CLI.

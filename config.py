@@ -12,6 +12,7 @@ GOOGLE_TOKEN_FILE = Path(os.getenv("GOOGLE_TOKEN_FILE", "token.json"))
 NOTION_API_KEY = os.getenv("NOTION_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-5")
+NEWS_FEEDS = os.getenv("NEWS_FEEDS", "")
 
 
 def which_integrations_available() -> dict[str, bool]:
