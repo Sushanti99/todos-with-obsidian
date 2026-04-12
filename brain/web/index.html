@@ -7,19 +7,70 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
+      color-scheme: light;
       --bg: #f6f0e8;
+      --bg-top: rgba(189, 79, 43, 0.18);
+      --bg-bottom: rgba(24, 92, 87, 0.16);
+      --bg-gradient-start: #f8f4ef;
+      --bg-gradient-end: #efe4d7;
       --panel: rgba(255, 252, 247, 0.82);
+      --header-bg: rgba(255, 248, 239, 0.85);
+      --panel-header-bg: rgba(255, 252, 247, 0.88);
+      --sidebar-bg: rgba(255, 249, 241, 0.88);
+      --composer-bg: rgba(255, 250, 245, 0.75);
       --line: #d4c3b2;
       --text: #1f1b17;
       --muted: #6c635c;
       --accent: #bd4f2b;
       --accent-dark: #8c3518;
       --secondary: #245d59;
+      --secondary-dark: #173e3b;
       --user: #fff4ec;
       --assistant: #f7f5ff;
       --error: #ffe4de;
       --soft: #f3efe9;
       --note: #fffaf4;
+      --empty-bg: rgba(255, 250, 245, 0.92);
+      --surface: #ffffff;
+      --pre-bg: rgba(0, 0, 0, 0.04);
+      --shadow: rgba(74, 46, 25, 0.14);
+      --input-shadow: rgba(31, 27, 23, 0.04);
+      --placeholder: #8d837a;
+      --select-bg: rgba(255, 252, 247, 0.92);
+      --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%231f1b17' d='M5 6 .67.75h8.66z'/%3E%3C/svg%3E");
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #171513;
+      --bg-top: rgba(189, 79, 43, 0.22);
+      --bg-bottom: rgba(36, 93, 89, 0.24);
+      --bg-gradient-start: #241d1a;
+      --bg-gradient-end: #141210;
+      --panel: rgba(27, 24, 22, 0.9);
+      --header-bg: rgba(36, 31, 28, 0.9);
+      --panel-header-bg: rgba(31, 27, 24, 0.92);
+      --sidebar-bg: rgba(30, 27, 24, 0.9);
+      --composer-bg: rgba(31, 27, 24, 0.88);
+      --line: #4b4037;
+      --text: #f4ece3;
+      --muted: #b4a79b;
+      --accent: #d46a45;
+      --accent-dark: #e78a67;
+      --secondary: #3d8d86;
+      --secondary-dark: #2d6a64;
+      --user: #38261f;
+      --assistant: #282631;
+      --error: #4a2720;
+      --soft: #25211d;
+      --note: #221d19;
+      --empty-bg: rgba(39, 33, 29, 0.94);
+      --surface: #201b18;
+      --pre-bg: rgba(255, 255, 255, 0.06);
+      --shadow: rgba(0, 0, 0, 0.34);
+      --input-shadow: rgba(0, 0, 0, 0.18);
+      --placeholder: #8f8378;
+      --select-bg: rgba(31, 27, 24, 0.96);
+      --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23f4ece3' d='M5 6 .67.75h8.66z'/%3E%3C/svg%3E");
     }
     * { box-sizing: border-box; }
     body {
@@ -27,11 +78,12 @@
       color: var(--text);
       font-family: "Iowan Old Style", "Palatino Linotype", serif;
       background:
-        radial-gradient(circle at top left, rgba(189, 79, 43, 0.18), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(24, 92, 87, 0.16), transparent 30%),
-        linear-gradient(180deg, #f8f4ef 0%, #efe4d7 100%);
+        radial-gradient(circle at top left, var(--bg-top), transparent 28%),
+        radial-gradient(circle at bottom right, var(--bg-bottom), transparent 30%),
+        linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
       min-height: 100vh;
       overflow: hidden;
+      transition: background-color 140ms ease, color 140ms ease, background 140ms ease;
     }
     button {
       border: 0;
@@ -41,12 +93,20 @@
       color: white;
       cursor: pointer;
       font: inherit;
+      transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+    }
+    button:hover:not(:disabled) {
+      background: var(--accent-dark);
     }
     button.secondary { background: var(--secondary); }
+    button.secondary:hover:not(:disabled) { background: var(--secondary-dark); }
     button.ghost {
       background: transparent;
       color: var(--text);
       border: 1px solid var(--line);
+    }
+    button.ghost:hover:not(:disabled) {
+      background: var(--soft);
     }
     button:disabled {
       opacity: 0.45;
@@ -62,9 +122,10 @@
       overflow: hidden;
       backdrop-filter: blur(18px);
       background: var(--panel);
-      box-shadow: 0 30px 80px rgba(74, 46, 25, 0.14);
+      box-shadow: 0 30px 80px var(--shadow);
       display: flex;
       flex-direction: column;
+      transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
     }
     .app-header {
       display: flex;
@@ -73,7 +134,7 @@
       align-items: center;
       padding: 18px 20px;
       border-bottom: 1px solid var(--line);
-      background: rgba(255, 248, 239, 0.85);
+      background: var(--header-bg);
     }
     .title { font-size: 24px; font-weight: 700; letter-spacing: 0.03em; }
     .meta { color: var(--muted); font-size: 14px; }
@@ -89,7 +150,7 @@
       min-width: 0;
       min-height: 0;
       border-right: 1px solid var(--line);
-      background: rgba(255, 249, 241, 0.88);
+      background: var(--sidebar-bg);
       overflow: hidden;
     }
     .chat-panel {
@@ -106,7 +167,7 @@
       gap: 12px;
       padding: 18px;
       border-bottom: 1px solid var(--line);
-      background: rgba(255, 252, 247, 0.88);
+      background: var(--panel-header-bg);
     }
     .panel-title {
       font-size: 18px;
@@ -165,7 +226,7 @@
       padding-left: 20px;
     }
     .daily-empty {
-      background: rgba(255, 250, 245, 0.92);
+      background: var(--empty-bg);
       border: 1px dashed var(--line);
       border-radius: 18px;
       padding: 18px;
@@ -183,7 +244,33 @@
       margin-top: 14px;
       word-break: break-word;
     }
-    .actions { display: flex; gap: 10px; }
+    .actions { display: flex; gap: 10px; align-items: center; }
+    .theme-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .theme-control select {
+      appearance: none;
+      min-width: 108px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 34px 9px 12px;
+      background-color: var(--select-bg);
+      background-image: var(--select-arrow);
+      background-position: right 12px center;
+      background-repeat: no-repeat;
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+    .theme-control select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     #messages {
       flex: 1;
       overflow-y: auto;
@@ -196,8 +283,9 @@
       border: 1px solid var(--line);
       border-radius: 18px;
       padding: 14px 16px;
-      background: white;
+      background: var(--surface);
       line-height: 1.5;
+      transition: background-color 140ms ease, border-color 140ms ease;
     }
     .message.user { background: var(--user); }
     .message.assistant { background: var(--assistant); }
@@ -216,7 +304,7 @@
       gap: 12px;
       padding: 18px;
       border-top: 1px solid var(--line);
-      background: rgba(255, 250, 245, 0.75);
+      background: var(--composer-bg);
     }
     textarea {
       resize: none;
@@ -225,7 +313,12 @@
       border-radius: 18px;
       padding: 14px;
       font: inherit;
-      background: white;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: inset 0 1px 0 var(--input-shadow);
+    }
+    textarea::placeholder {
+      color: var(--placeholder);
     }
     #status {
       padding: 0 18px 18px;
@@ -234,9 +327,12 @@
     }
     pre {
       overflow-x: auto;
-      background: rgba(0, 0, 0, 0.04);
+      background: var(--pre-bg);
       border-radius: 12px;
       padding: 12px;
+    }
+    a {
+      color: var(--accent);
     }
     code {
       font-family: "SFMono-Regular", "Menlo", monospace;
@@ -266,8 +362,16 @@
       }
       .actions {
         width: 100%;
+        flex-wrap: wrap;
       }
       .actions button {
+        flex: 1;
+      }
+      .theme-control {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .theme-control select {
         flex: 1;
       }
       .day-switcher {
@@ -292,6 +396,14 @@
         </div>
       </div>
       <div class="actions">
+        <label class="theme-control" for="themeSelect">
+          <span>Theme</span>
+          <select id="themeSelect" aria-label="Theme">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
         <button id="endBtn" type="button">End &amp; Summarize</button>
       </div>
     </header>
@@ -344,6 +456,9 @@
     const dailyMetaEl = document.getElementById("dailyMeta");
     const prevDayBtn = document.getElementById("prevDayBtn");
     const nextDayBtn = document.getElementById("nextDayBtn");
+    const themeSelect = document.getElementById("themeSelect");
+    const storageKey = "brain-theme";
+    const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     let socket = null;
     let activeAssistantMessage = null;
@@ -352,6 +467,22 @@
     let suppressReconnect = false;
     let dailyOffset = 0;
     let currentDailyNote = null;
+
+    function getSavedTheme() {
+      const value = window.localStorage.getItem(storageKey);
+      return value === "light" || value === "dark" || value === "system" ? value : "system";
+    }
+
+    function applyTheme(mode) {
+      const resolvedTheme = mode === "system" ? (systemThemeQuery.matches ? "dark" : "light") : mode;
+      document.documentElement.dataset.theme = resolvedTheme;
+      themeSelect.value = mode;
+    }
+
+    function setTheme(mode) {
+      window.localStorage.setItem(storageKey, mode);
+      applyTheme(mode);
+    }
 
     function setRunning(value) {
       running = value;
@@ -575,6 +706,22 @@
       }
     });
 
+    themeSelect.addEventListener("change", (event) => {
+      setTheme(event.target.value);
+    });
+
+    const handleSystemThemeChange = () => {
+      if (getSavedTheme() === "system") {
+        applyTheme("system");
+      }
+    };
+
+    if (typeof systemThemeQuery.addEventListener === "function") {
+      systemThemeQuery.addEventListener("change", handleSystemThemeChange);
+    } else if (typeof systemThemeQuery.addListener === "function") {
+      systemThemeQuery.addListener(handleSystemThemeChange);
+    }
+
     endBtn.addEventListener("click", async () => {
       updateStatus("Ending session...");
       const response = await fetch("/api/session/end", { method: "POST" });
@@ -589,6 +736,7 @@
       updateStatus("Ready.");
     });
 
+    applyTheme(getSavedTheme());
     loadDailyNote();
     connect();
   </script>
