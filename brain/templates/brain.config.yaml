@@ -45,3 +45,4 @@ agents:
 integrations:
   enable_daily_context: true
   include_in_prompt: false
+  include_reading_list_in_daily_note: false

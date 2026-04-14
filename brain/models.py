@@ -51,6 +51,7 @@ class AgentCommandConfig:
 class IntegrationsConfig:
     enable_daily_context: bool = True
     include_in_prompt: bool = False
+    include_reading_list_in_daily_note: bool = False
 
 
 @dataclass(slots=True)

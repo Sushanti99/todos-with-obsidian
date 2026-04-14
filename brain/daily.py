@@ -16,17 +16,20 @@ def daily_note_exists_for_today(app_cfg: AppConfig) -> bool:
 
 def generate_daily_note(app_cfg: AppConfig, env_cfg: EnvConfig, *, force: bool = False) -> Path:
     context = build_daily_context(app_cfg, env_cfg)
-    content = render_daily_note(context)
+    content = render_daily_note(
+        context,
+        include_reading_list=app_cfg.integrations.include_reading_list_in_daily_note,
+    )
     return write_daily_note(app_cfg, content, force=force)
 
 
-def render_daily_note(bundle: DailyContext) -> str:
+def render_daily_note(bundle: DailyContext, *, include_reading_list: bool = False) -> str:
     sources = (
         (["obsidian"] if bundle.vault_notes else [])
         + (["calendar"] if bundle.calendar_events else [])
         + (["gmail"] if bundle.email_items else [])
         + (["notion"] if bundle.notion_tasks else [])
-        + (["news"] if bundle.reading_list else [])
+        + (["news"] if include_reading_list and bundle.reading_list else [])
     )
 
     day_label = datetime.now().strftime("%A, %B %d %Y")
@@ -90,13 +93,14 @@ def render_daily_note(bundle: DailyContext) -> str:
     else:
         lines.append("*No open Notion tasks.*")
 
-    lines += ["", "## Reading — Today's Links", ""]
-    if bundle.reading_list:
-        for article in bundle.reading_list:
-            source = f" *({article['source']})*" if article.get("source") else ""
-            lines.append(f"- [{article['title']}]({article['url']}){source}")
-    else:
-        lines.append("*No articles fetched.*")
+    if include_reading_list:
+        lines += ["", "## Reading — Today's Links", ""]
+        if bundle.reading_list:
+            for article in bundle.reading_list:
+                source = f" *({article['source']})*" if article.get("source") else ""
+                lines.append(f"- [{article['title']}]({article['url']}){source}")
+        else:
+            lines.append("*No articles fetched.*")
 
     lines += ["", "---", f"*Generated at {generated_at} by brain*"]
     return "\n".join(lines)

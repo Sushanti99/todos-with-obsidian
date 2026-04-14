@@ -6,7 +6,7 @@ It can:
 - initialize or convert a vault into Brain format
 - start a local FastAPI server with a minimal browser chat UI
 - run either Claude Code or Codex against the vault
-- generate daily notes from Gmail, Google Calendar, Notion, vault tasks, and news
+- generate daily notes from Gmail, Google Calendar, Notion, and vault tasks
 - end a session by writing only a markdown summary into `thoughts/`
 
 The older flat scripts are still present as compatibility wrappers where needed, but the primary interface is now the installable `brain` CLI.
@@ -60,6 +60,8 @@ brain daily --vault /absolute/path/to/vault
 ```
 
 By default, Brain refuses to overwrite today’s existing daily note.
+
+Reading links are now opt-in. To include them in generated daily notes, set `integrations.include_reading_list_in_daily_note: true` in `system/brain.config.yaml`.
 
 ## Status
 

@@ -28,6 +28,16 @@ def test_load_app_config_applies_overrides(tmp_path):
     assert app_cfg.server.port == 4444
 
 
+def test_load_app_config_defaults_reading_list_opt_in_to_disabled(tmp_path):
+    vault_path = tmp_path / "vault"
+    config_path = vault_path / "system" / "brain.config.yaml"
+    write_default_app_config(config_path, vault_path, agent="claude-code")
+
+    app_cfg = load_app_config(vault_path=vault_path)
+
+    assert app_cfg.integrations.include_reading_list_in_daily_note is False
+
+
 def test_write_default_app_config_persists_folder_overrides(tmp_path):
     vault_path = tmp_path / "vault"
     config_path = vault_path / "system" / "brain.config.yaml"
@@ -42,3 +52,4 @@ def test_write_default_app_config_persists_folder_overrides(tmp_path):
 
     assert data["vault"]["daily_folder"] == "Daily"
     assert data["vault"]["thoughts_folder"] == "Thoughts"
+    assert data["integrations"]["include_reading_list_in_daily_note"] is False

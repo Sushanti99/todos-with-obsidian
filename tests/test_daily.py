@@ -28,7 +28,7 @@ def test_render_daily_note_includes_sections():
         reading_list=[{"title": "Article", "url": "https://example.com/article", "source": "Test"}],
     )
 
-    content = render_daily_note(bundle)
+    content = render_daily_note(bundle, include_reading_list=True)
 
     obsidian_index = content.index("## Open Obsidian Tasks")
     calendar_index = content.index("## Calendar — Today's Events")
@@ -38,6 +38,18 @@ def test_render_daily_note_includes_sections():
 
     assert obsidian_index < calendar_index < email_index < notion_index < reading_index
     assert "sources: [obsidian, calendar, gmail, notion, news]" in content
+
+
+def test_render_daily_note_omits_reading_section_by_default():
+    bundle = DailyContext(
+        today="2026-04-11",
+        reading_list=[{"title": "Article", "url": "https://example.com/article", "source": "Test"}],
+    )
+
+    content = render_daily_note(bundle)
+
+    assert "## Reading — Today's Links" not in content
+    assert "sources: [news]" not in content
 
 
 def test_generate_daily_note_refuses_overwrite_by_default(tmp_path, monkeypatch):

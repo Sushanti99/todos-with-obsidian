@@ -58,6 +58,7 @@ def _build_default_config(vault_path: Path, agent: str = "claude-code") -> dict[
         "integrations": {
             "enable_daily_context": True,
             "include_in_prompt": False,
+            "include_reading_list_in_daily_note": False,
         },
     }
 
@@ -181,6 +182,9 @@ def _parse_app_config(data: dict[str, Any], config_path: Path | None) -> AppConf
         integrations=IntegrationsConfig(
             enable_daily_context=bool(integrations_data.get("enable_daily_context", True)),
             include_in_prompt=bool(integrations_data.get("include_in_prompt", False)),
+            include_reading_list_in_daily_note=bool(
+                integrations_data.get("include_reading_list_in_daily_note", False)
+            ),
         ),
         config_path=config_path,
     )

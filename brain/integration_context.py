@@ -44,12 +44,13 @@ def build_daily_context(app_cfg: AppConfig, env_cfg: EnvConfig) -> DailyContext:
     except Exception:
         bundle.notion_tasks = []
 
-    try:
-        news_client = _load_legacy_module("news_client")
+    if app_cfg.integrations.include_reading_list_in_daily_note:
+        try:
+            news_client = _load_legacy_module("news_client")
 
-        bundle.reading_list = news_client.get_reading_list(bundle.vault_notes)
-    except Exception:
-        bundle.reading_list = []
+            bundle.reading_list = news_client.get_reading_list(bundle.vault_notes)
+        except Exception:
+            bundle.reading_list = []
 
     return bundle
 
