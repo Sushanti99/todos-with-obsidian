@@ -600,17 +600,12 @@
       flex: 1;
       min-height: 0;
       flex-direction: column;
-      overflow-y: auto;
-      padding: 40px 48px;
-      gap: 32px;
+      overflow: hidden;
     }
     .home-view.active { display: flex; }
-    .home-hero { flex-shrink: 0; }
-    .home-hero h2 { font-size: 24px; font-weight: 700; margin: 0 0 6px; }
-    .home-hero p  { color: var(--muted); font-size: 15px; margin: 0; }
-    .home-section { display: flex; flex-direction: column; gap: 14px; }
-    .home-section-title { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-    .home-int-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .home-section { display: flex; flex-direction: column; gap: 10px; }
+    .home-section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .home-int-row { display: flex; gap: 8px; flex-wrap: wrap; }
     .home-int-chip {
       display: flex; align-items: center; gap: 7px;
       padding: 6px 14px; border-radius: 999px;
@@ -631,10 +626,92 @@
     .seed-log {
       display: none; background: var(--soft); border-radius: 12px;
       padding: 14px 16px; font-size: 13px; font-family: monospace;
-      line-height: 1.7; max-height: 260px; overflow-y: auto;
+      line-height: 1.7; max-height: 200px; overflow-y: auto;
       white-space: pre-wrap; color: var(--text);
     }
     .seed-log.visible { display: block; }
+
+    /* ── home two-pane layout ─────────────────────────────────────── */
+    .home-body {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 0;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .home-left {
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 28px 24px;
+      overflow-y: auto;
+    }
+    .home-right {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .vault-tree {
+      border-right: 1px solid var(--line);
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+    .vault-tree-header {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 16px 10px;
+    }
+    .vault-folder-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px 4px;
+    }
+    .vault-file-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 5px 16px;
+      background: none;
+      border: none;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vault-file-btn:hover { background: var(--soft); }
+    .vault-file-btn.active { background: var(--soft); color: var(--accent); font-weight: 600; }
+    .vault-content {
+      overflow-y: auto;
+      padding: 28px 32px;
+    }
+    .vault-content-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    .vault-empty {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 20px 0;
+    }
+    @media (max-width: 860px) {
+      .home-body { grid-template-columns: 1fr; }
+      .home-right { grid-template-columns: 1fr; }
+    }
     @media (max-width: 860px) {
       .layout {
         grid-template-columns: 1fr;
@@ -755,23 +832,42 @@
 
     <!-- Home view -->
     <div class="home-view" id="homeView">
-      <div class="home-hero">
-        <h2>Your vault</h2>
-        <p>Seed brain² from your connected tools and start every day with full context.</p>
-      </div>
+      <div class="home-body">
 
-      <div class="home-section">
-        <div class="home-section-title">Connected tools</div>
-        <div class="home-int-row" id="homeIntRow">
-          <div style="color:var(--muted);font-size:14px;">Loading...</div>
+        <!-- Left: seed controls -->
+        <div class="home-left">
+          <div>
+            <div style="font-size:18px;font-weight:700;margin-bottom:4px;">Your vault</div>
+            <div style="color:var(--muted);font-size:14px;">Everything your brain² knows lives here.</div>
+          </div>
+
+          <div class="home-section">
+            <div class="home-section-title">Connected</div>
+            <div class="home-int-row" id="homeIntRow">
+              <div style="color:var(--muted);font-size:13px;">Loading...</div>
+            </div>
+          </div>
+
+          <div class="seed-box">
+            <h3 style="margin:0 0 6px;font-size:15px;">Seed from connected tools</h3>
+            <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.5;">Pull context from Gmail, Calendar, Notion, GitHub, Slack, and Linear into your vault. Re-run anytime to refresh.</p>
+            <button id="seedBtn" type="button">Seed Vault</button>
+            <div class="seed-log" id="seedLog"></div>
+          </div>
         </div>
-      </div>
 
-      <div class="seed-box">
-        <h3>Seed vault from connected tools</h3>
-        <p>brain² pulls context from Gmail, Calendar, Notion, GitHub, Slack, and Linear into your vault — contacts, open tasks, recurring events, and threads. Run this when you first set up, or whenever you want to refresh.</p>
-        <button id="seedBtn" type="button">Seed Vault</button>
-        <div class="seed-log" id="seedLog"></div>
+        <!-- Right: vault file browser -->
+        <div class="home-right">
+          <div class="vault-tree">
+            <div class="vault-tree-header">Vault</div>
+            <div id="homeTreeList"><div class="vault-empty" style="padding:0 16px;">Loading...</div></div>
+          </div>
+          <div class="vault-content">
+            <div id="homeFileTitle" class="vault-content-title" style="display:none;"></div>
+            <div id="homeFileBody"><div class="vault-empty">Select a file to read it.</div></div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1108,10 +1204,16 @@
     const seedBtn = document.getElementById("seedBtn");
     const seedLog = document.getElementById("seedLog");
 
+    let homeActiveFileBtn = null;
+
     async function loadHomeView() {
-      // show connected integration chips
+      loadHomeIntStatus();
+      loadVaultTree();
+    }
+
+    async function loadHomeIntStatus() {
       const homeIntRow = document.getElementById("homeIntRow");
-      homeIntRow.innerHTML = `<div style="color:var(--muted);font-size:14px;">Loading...</div>`;
+      homeIntRow.innerHTML = `<div style="color:var(--muted);font-size:13px;">Loading...</div>`;
       try {
         const resp = await fetch("/api/integrations/status");
         const status = await resp.json();
@@ -1125,7 +1227,58 @@
           homeIntRow.appendChild(chip);
         }
       } catch {
-        homeIntRow.innerHTML = `<div style="color:var(--muted);font-size:14px;">Could not load status.</div>`;
+        homeIntRow.innerHTML = `<div style="color:var(--muted);font-size:13px;">Could not load status.</div>`;
+      }
+    }
+
+    async function loadVaultTree() {
+      const treeList = document.getElementById("homeTreeList");
+      treeList.innerHTML = `<div class="vault-empty" style="padding:0 16px;">Loading...</div>`;
+      try {
+        const resp = await fetch("/api/notes");
+        const data = await resp.json();
+        if (!data.notes || !data.notes.length) {
+          treeList.innerHTML = `<div class="vault-empty" style="padding:0 16px;">No notes yet. Seed your vault to get started.</div>`;
+          return;
+        }
+        const groups = {};
+        for (const note of data.notes) {
+          (groups[note.folder] = groups[note.folder] || []).push(note);
+        }
+        treeList.innerHTML = "";
+        for (const [folder, notes] of Object.entries(groups)) {
+          const lbl = document.createElement("div");
+          lbl.className = "vault-folder-label";
+          lbl.textContent = folder;
+          treeList.appendChild(lbl);
+          for (const note of notes) {
+            const btn = document.createElement("button");
+            btn.className = "vault-file-btn";
+            btn.textContent = note.title;
+            btn.addEventListener("click", () => openHomeFile(note, btn));
+            treeList.appendChild(btn);
+          }
+        }
+      } catch {
+        treeList.innerHTML = `<div class="vault-empty" style="padding:0 16px;">Failed to load vault.</div>`;
+      }
+    }
+
+    async function openHomeFile(note, btn) {
+      if (homeActiveFileBtn) homeActiveFileBtn.classList.remove("active");
+      homeActiveFileBtn = btn;
+      btn.classList.add("active");
+      const titleEl = document.getElementById("homeFileTitle");
+      const bodyEl  = document.getElementById("homeFileBody");
+      titleEl.style.display = "block";
+      titleEl.textContent = note.title;
+      bodyEl.innerHTML = `<div class="vault-empty">Loading...</div>`;
+      try {
+        const resp = await fetch(`/api/notes/${note.path}`);
+        const data = await resp.json();
+        bodyEl.innerHTML = `<div class="daily-note">${marked.parse(data.content || "*(empty)*")}</div>`;
+      } catch {
+        bodyEl.innerHTML = `<div class="vault-empty">Failed to load file.</div>`;
       }
     }
 
@@ -1151,6 +1304,7 @@
 
       seedBtn.disabled = false;
       seedBtn.textContent = "Seed Vault";
+      loadVaultTree();
     });
 
     // ── integrations view ──────────────────────────────────────────────────────
