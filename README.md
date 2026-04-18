@@ -1,15 +1,15 @@
-# idli
+# brain² (BrainSquared)
 
 Your second brain, on your laptop. No cloud. No subscriptions. Just your data and an AI that knows it.
 
-You connect your existing tools — Obsidian, Gmail, Google Calendar, Notion — and idli seeds a new vault from your real data. Then you chat with it through a minimal browser UI. The agent reads and writes your vault directly. Everything stays on your machine.
+You connect your existing tools — Obsidian, Gmail, Google Calendar, Notion — and brain² seeds a new vault from your real data. Then you chat with it through a minimal browser UI. The agent reads and writes your vault directly. Everything stays on your machine.
 
 ---
 
 ## How it works
 
 ```
-Browser UI  ──►  idli Server  ──►  Claude Code / Codex CLI
+Browser UI  ──►  brain² Server  ──►  Claude Code / Codex CLI
                                                 │
                                          Obsidian Vault (markdown files)
                                                 │
@@ -28,8 +28,8 @@ Browser UI  ──►  idli Server  ──►  Claude Code / Codex CLI
 ### 1. Install
 
 ```bash
-git clone https://github.com/Sushanti/idli
-cd idli
+git clone https://github.com/Sushanti/brainsquared
+cd brainsquared
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e '.[test]'
@@ -43,19 +43,19 @@ Requires [Claude Code](https://claude.ai/code) (or Codex) installed and authenti
 python bootstrap.py
 ```
 
-Walks you through Google OAuth (Gmail + Calendar), Notion API key, and RSS feeds. Writes credentials to `.env`. All integrations are optional — idli works with just a vault.
+Walks you through Google OAuth (Gmail + Calendar), Notion API key, and RSS feeds. Writes credentials to `.env`. All integrations are optional — brain² works with just a vault.
 
 ### 3. Seed a new vault
 
 ```bash
-idli seed --vault ~/my-vault \
+brain seed --vault ~/my-vault \
                 --from-obsidian ~/path/to/existing-vault \
                 --from-notion \
                 --from-gmail \
                 --from-calendar
 ```
 
-idli collects your existing data, runs it through Claude, and populates:
+brain² collects your existing data, runs it through Claude, and populates:
 
 ```
 my-vault/
@@ -71,7 +71,7 @@ Use `--dry-run` to inspect collected data before the agent writes anything.
 ### 4. Start
 
 ```bash
-idli start --vault ~/my-vault
+brain start --vault ~/my-vault
 ```
 
 Opens `http://localhost:3000`. Chat with your vault. Click the **home icon** next to the title to browse all your notes.
@@ -81,18 +81,11 @@ Opens `http://localhost:3000`. Chat with your vault. Click the **home icon** nex
 ## All commands
 
 ```bash
-idli seed    --vault PATH  [--from-obsidian PATH] [--from-notion] [--from-gmail] [--from-calendar] [--dry-run]
-idli init    --vault PATH  [--agent claude-code|codex]
-idli start   --vault PATH  [--agent claude-code|codex] [--port N] [--no-open]
-idli daily   --vault PATH  [--force]
-idli status  --vault PATH
-```
-
-Or use the legacy entry point:
-
-```bash
-python main.py daily --vault PATH
-python main.py chat  --vault PATH   # same as idli start
+brain seed    --vault PATH  [--from-obsidian PATH] [--from-notion] [--from-gmail] [--from-calendar] [--dry-run]
+brain init    --vault PATH  [--agent claude-code|codex]
+brain start   --vault PATH  [--agent claude-code|codex] [--port N] [--no-open]
+brain daily   --vault PATH  [--force]
+brain status  --vault PATH
 ```
 
 ---
@@ -111,7 +104,7 @@ python main.py chat  --vault PATH   # same as idli start
 
 ## Vault structure
 
-idli uses five folders. Existing vault folders are mapped automatically — your `Daily/` becomes `daily`, your `References/` becomes `references`, etc.
+brain² uses five folders. Existing vault folders are mapped automatically — your `Daily/` becomes `daily`, your `References/` becomes `references`, etc.
 
 | Folder | Purpose |
 |---|---|
