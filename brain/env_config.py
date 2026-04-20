@@ -11,7 +11,11 @@ from brain.models import EnvConfig
 
 
 def _find_dotenv() -> Path | None:
-    """Search CWD and parents for a .env file."""
+    """Search project root (brain package location) then CWD and parents for a .env file."""
+    project_root = Path(__file__).resolve().parent.parent
+    candidate = project_root / ".env"
+    if candidate.exists():
+        return candidate
     here = Path.cwd()
     for directory in [here, *here.parents]:
         candidate = directory / ".env"

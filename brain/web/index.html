@@ -198,7 +198,27 @@
       gap: 10px;
       padding: 14px 18px 0;
       flex-wrap: wrap;
+      align-items: center;
     }
+    .icon-btn { font-size: 16px; padding: 6px 10px; line-height: 1; }
+    .settings-wrap { position: relative; margin-left: auto; }
+    .settings-popover {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      min-width: 190px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      z-index: 100;
+    }
+    .settings-popover.open { display: block; }
+    .settings-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 10px; }
+    .setting-row { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 4px 0; cursor: pointer; user-select: none; }
+    .setting-row input[type="checkbox"] { cursor: pointer; }
     .daily-status {
       padding: 12px 18px 0;
       color: var(--muted);
@@ -225,6 +245,8 @@
     .daily-note ol {
       padding-left: 20px;
     }
+    .daily-note input[type="checkbox"] { cursor: pointer; }
+    .daily-note li[style*="opacity: 0.5"] { text-decoration: line-through; color: var(--muted); }
     .daily-empty {
       background: var(--empty-bg);
       border: 1px dashed var(--line);
@@ -805,6 +827,18 @@
         <div class="daily-toolbar">
           <button class="secondary" id="dailyBtn" type="button">Generate Daily</button>
           <button class="ghost" id="refreshDailyBtn" type="button">Regenerate</button>
+          <div class="settings-wrap" id="settingsWrap">
+            <button class="ghost icon-btn" id="settingsBtn" type="button" title="Tasks settings">⚙</button>
+            <div class="settings-popover" id="settingsPopover">
+              <div class="settings-title">Include in daily note</div>
+              <label class="setting-row"><input type="checkbox" data-int="obsidian" checked> Obsidian Tasks</label>
+              <label class="setting-row"><input type="checkbox" data-int="calendar" checked> Calendar</label>
+              <label class="setting-row"><input type="checkbox" data-int="email" checked> Email</label>
+              <label class="setting-row"><input type="checkbox" data-int="notion" checked> Notion</label>
+              <label class="setting-row"><input type="checkbox" data-int="github" checked> GitHub</label>
+              <label class="setting-row"><input type="checkbox" data-int="slack" checked> Slack</label>
+            </div>
+          </div>
         </div>
         <div class="daily-status" id="dailyStatus">Loading daily note...</div>
         <div class="daily-content" id="dailyContent"></div>
@@ -882,6 +916,8 @@
     const sendBtn = document.getElementById("sendBtn");
     const dailyBtn = document.getElementById("dailyBtn");
     const refreshDailyBtn = document.getElementById("refreshDailyBtn");
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsPopover = document.getElementById("settingsPopover");
     const endBtn = document.getElementById("endBtn");
     const composer = document.getElementById("composer");
     const dailyContentEl = document.getElementById("dailyContent");
@@ -891,7 +927,44 @@
     const nextDayBtn = document.getElementById("nextDayBtn");
     const themeSelect = document.getElementById("themeSelect");
     const storageKey = "brain2-theme";
+    const settingsKey = "brain2-daily-settings";
     const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const ALL_INTEGRATIONS = ["obsidian", "calendar", "email", "notion", "github", "slack"];
+
+    function loadDailySettings() {
+      try { return JSON.parse(localStorage.getItem(settingsKey)) || {}; } catch { return {}; }
+    }
+    function saveDailySettings(s) { localStorage.setItem(settingsKey, JSON.stringify(s)); }
+    function getEnabledIntegrations() {
+      const s = loadDailySettings();
+      return ALL_INTEGRATIONS.filter(k => s[k] !== false);
+    }
+
+    function initSettingsPopover() {
+      const s = loadDailySettings();
+      settingsPopover.querySelectorAll("input[data-int]").forEach(cb => {
+        const key = cb.dataset.int;
+        cb.checked = s[key] !== false;
+        cb.addEventListener("change", () => {
+          const cur = loadDailySettings();
+          cur[key] = cb.checked;
+          saveDailySettings(cur);
+        });
+      });
+    }
+
+    settingsBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      settingsPopover.classList.toggle("open");
+    });
+    document.addEventListener("click", e => {
+      if (!settingsPopover.contains(e.target) && e.target !== settingsBtn) {
+        settingsPopover.classList.remove("open");
+      }
+    });
+
+    initSettingsPopover();
 
     let socket = null;
     let activeAssistantMessage = null;
@@ -965,6 +1038,27 @@
             <div class="daily-path">Path: <code>${payload.path}</code></div>
           </article>
         `;
+        if (payload.offset === 0) {
+          dailyContentEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.disabled = false;
+            cb.style.cursor = "pointer";
+            cb.addEventListener("change", async () => {
+              const li = cb.closest("li");
+              const text = li ? li.textContent.trim() : "";
+              await fetch("/api/daily/task", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text, checked: cb.checked }),
+              });
+              if (cb.checked) li && (li.style.opacity = "0.5");
+              else li && (li.style.opacity = "1");
+            });
+            if (cb.checked) {
+              const li = cb.closest("li");
+              li && (li.style.opacity = "0.5");
+            }
+          });
+        }
         return;
       }
 
@@ -1007,7 +1101,8 @@
       setDailyStatus("Generating daily note...");
       dailyBtn.disabled = true;
       try {
-        const response = await fetch("/api/daily", { method: "POST" });
+        const enabled = getEnabledIntegrations().join(",");
+        const response = await fetch(`/api/daily?integrations=${encodeURIComponent(enabled)}`, { method: "POST" });
         const payload = await response.json();
         if (response.ok) {
           appendMessage("system", "Daily", `Generated: \`${payload.path}\``);
@@ -1126,7 +1221,8 @@
       setDailyStatus("Regenerating daily note...");
       refreshDailyBtn.disabled = true;
       try {
-        const response = await fetch("/api/daily?force=true", { method: "POST" });
+        const enabled = getEnabledIntegrations().join(",");
+        const response = await fetch(`/api/daily?force=true&integrations=${encodeURIComponent(enabled)}`, { method: "POST" });
         const payload = await response.json();
         if (response.ok) {
           dailyOffset = 0;
