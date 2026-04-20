@@ -78,9 +78,9 @@ def create_app(runtime: AppRuntime) -> FastAPI:
         )
 
     @app.post("/api/daily")
-    async def post_daily():
+    async def post_daily(force: bool = Query(default=False)):
         try:
-            path = generate_daily_note(runtime.app_cfg, runtime.env_cfg, force=False)
+            path = generate_daily_note(runtime.app_cfg, runtime.env_cfg, force=force)
             return JSONResponse({"status": "ok", "path": str(path)})
         except FileExistsError as exc:
             return JSONResponse({"status": "error", "message": str(exc)}, status_code=409)

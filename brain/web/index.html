@@ -804,7 +804,7 @@
         </div>
         <div class="daily-toolbar">
           <button class="secondary" id="dailyBtn" type="button">Generate Daily</button>
-          <button class="ghost" id="refreshDailyBtn" type="button">Refresh</button>
+          <button class="ghost" id="refreshDailyBtn" type="button">Regenerate</button>
         </div>
         <div class="daily-status" id="dailyStatus">Loading daily note...</div>
         <div class="daily-content" id="dailyContent"></div>
@@ -1122,7 +1122,23 @@
     });
 
     refreshDailyBtn.addEventListener("click", async () => {
-      await loadDailyNote();
+      if (dailyOffset !== 0) { await loadDailyNote(); return; }
+      setDailyStatus("Regenerating daily note...");
+      refreshDailyBtn.disabled = true;
+      try {
+        const response = await fetch("/api/daily?force=true", { method: "POST" });
+        const payload = await response.json();
+        if (response.ok) {
+          dailyOffset = 0;
+          await loadDailyNote();
+        } else {
+          setDailyStatus(payload.message || "Failed to regenerate.");
+        }
+      } catch (error) {
+        setDailyStatus(error.message || "Failed to regenerate.");
+      } finally {
+        refreshDailyBtn.disabled = false;
+      }
     });
 
     prevDayBtn.addEventListener("click", async () => {
