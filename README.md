@@ -40,22 +40,45 @@ Every day you get a unified view of what needs your attention. You act on it. Wh
 
 ## Quickstart
 
+**Prerequisites:** [Claude Code](https://claude.ai/code) (or Codex) installed and authenticated on your machine.
+
+**1. Install**
+
 ```bash
 pip install brainsquared
-brain start --vault ~/my-vault
 ```
 
-Requires [Claude Code](https://claude.ai/code) (or Codex) installed and authenticated.
+**2. Create your vault**
 
-To seed your vault from existing data:
+If you're starting fresh:
+```bash
+brain init --vault ~/my-vault
+```
 
+If you want to seed it from your existing tools first:
 ```bash
 brain seed --vault ~/my-vault \
            --from-obsidian ~/path/to/existing-vault \
-           --from-notion \
            --from-gmail \
-           --from-calendar
+           --from-calendar \
+           --from-notion
 ```
+
+**3. Start**
+
+```bash
+brain start --vault ~/my-vault
+```
+
+Opens `http://localhost:3000` in your browser.
+
+**4. Connect your tools**
+
+Go to the **Integrations** tab in the UI. Connect Gmail, GitHub, Notion, Slack, or any other tool — paste an API key or go through OAuth. No config files needed.
+
+**5. Generate your daily note**
+
+Go to the **Tasks** tab and click **Generate Daily**. brain² pulls your tasks, events, emails, and open PRs into one view. Tick things off as you go.
 
 ---
 
@@ -93,7 +116,7 @@ pytest -q
 
 ## Roadmap
 
-- [ ] More integrations — Linear, Jira, Figma, Zoom, iMessage, and more
+- [ ] More integrations — Jira, Figma, Zoom, iMessage, and more
 - [ ] `brain setup` — guided OAuth so each user owns their own Google credentials
 - [ ] Action layer — reply to emails, send Slack messages, create tasks, directly from brain²
 - [ ] VPS deployment with remote vault sync
