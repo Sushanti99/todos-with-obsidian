@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="brain-logo.png" alt="brain²" width="96">
+  <img src="brain-logo.png" alt="brain²" width="120">
 </p>
 
 <h1 align="center">brain² (BrainSquared)</h1>
