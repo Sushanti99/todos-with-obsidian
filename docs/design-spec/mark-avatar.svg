@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@700&display=swap');
     .mk { font-family: 'Kalam', cursive; font-weight: 700; }
   </style>
   <rect width="512" height="512" fill="#FAFAF7"/>
