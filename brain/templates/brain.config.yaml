@@ -28,6 +28,8 @@ agents:
       - --output-format
       - stream-json
       - --verbose
+      - --model
+      - claude-opus-4-7
     allowed_tools:
       - Read
       - Edit
