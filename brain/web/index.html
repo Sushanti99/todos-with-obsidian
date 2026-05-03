@@ -1462,6 +1462,7 @@
   const statusDot = document.getElementById("statusDot");
   const sessionEl = document.getElementById("session");
   const agentEl = document.getElementById("agent");
+  let currentAgent = "unknown";
   const inputEl = document.getElementById("input");
   const sendBtn = document.getElementById("sendBtn");
   const dailyBtn = document.getElementById("dailyBtn");
@@ -1912,8 +1913,9 @@
     socket.addEventListener("message", (event) => {
       const payload = JSON.parse(event.data);
       if (payload.type === "session") {
+        currentAgent = payload.agent || "unknown";
         sessionEl.textContent = `session: ${payload.session_id}`;
-        agentEl.textContent = `agent: ${payload.agent}`;
+        agentEl.textContent = `agent: ${currentAgent}`;
         return;
       }
       if (payload.type === "session_conflict") {
@@ -1950,7 +1952,7 @@
       if (payload.type === "chunk") {
         hideThinkingDots();
         if (!activeAssistantMessage) {
-          activeAssistantMessage = appendMessage("assistant", "agent · claude", "");
+          activeAssistantMessage = appendMessage("assistant", `agent · ${currentAgent}`, "");
         }
         activeAssistantMessage.body.innerHTML = marked.parse((activeAssistantMessage.body.innerText || "") + payload.content);
         messages.scrollTop = messages.scrollHeight;
@@ -1961,7 +1963,7 @@
         hideThinkingDots();
         if (payload.content) {
           if (!activeAssistantMessage) {
-            activeAssistantMessage = appendMessage("assistant", "agent · claude", payload.content);
+            activeAssistantMessage = appendMessage("assistant", `agent · ${currentAgent}`, payload.content);
           } else if (!activeAssistantMessage.body.innerText.trim()) {
             activeAssistantMessage.body.innerHTML = marked.parse(payload.content);
           }
