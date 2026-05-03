@@ -216,7 +216,36 @@ def create_app(runtime: AppRuntime) -> FastAPI:
                     "path": f"{folder_name}/{md_file.name}",
                     "folder": folder_name,
                 })
-        return JSONResponse({"status": "ok", "notes": notes})
+        return JSONResponse(
+            {
+                "status": "ok",
+                "folders": [cfg.core_folder, cfg.references_folder, cfg.thoughts_folder, cfg.daily_folder],
+                "notes": notes,
+            }
+        )
+
+    @app.post("/api/notes")
+    async def post_note(body: dict):
+        raw_title = (body.get("title") or "").strip()
+        title = _normalize_note_title(raw_title)
+        if not title:
+            return JSONResponse({"status": "error", "message": "A note title is required."}, status_code=400)
+
+        vault_paths = resolve_vault_paths(runtime.app_cfg)
+        note_path = vault_paths.core / f"{title}.md"
+        if note_path.exists():
+            return JSONResponse({"status": "error", "message": f"A note already exists at {runtime.app_cfg.vault.core_folder}/{note_path.name}."}, status_code=409)
+
+        note_path.parent.mkdir(parents=True, exist_ok=True)
+        note_path.write_text(_new_note_content(title), encoding="utf-8")
+        return JSONResponse(
+            {
+                "status": "ok",
+                "path": f"{runtime.app_cfg.vault.core_folder}/{note_path.name}",
+                "title": title,
+                "content": _new_note_content(title),
+            }
+        )
 
     @app.get("/api/notes/{note_path:path}")
     async def get_note(note_path: str):
@@ -410,6 +439,15 @@ def _strip_frontmatter(content: str) -> str:
     return content
 
 
+def _normalize_note_title(title: str) -> str:
+    title = re.sub(r"\.md$", "", title, flags=re.IGNORECASE).strip()
+    title = re.sub(r"[\\/:*?\"<>|]", " ", title)
+    title = re.sub(r"\s+", " ", title).strip(" .")
+    return title[:120].strip()
+
+
+def _new_note_content(title: str) -> str:
+    return f"# {title}\n"
 def _session_payload(runtime: AppRuntime, session: SessionState) -> dict[str, object]:
     return {
         "type": "session",
