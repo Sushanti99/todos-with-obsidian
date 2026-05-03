@@ -36,6 +36,15 @@ agents:
       - Bash
       - Glob
       - Grep
+      - mcp__google__list_emails
+      - mcp__google__search_emails
+      - mcp__google__get_email
+      - mcp__google__get_events
+      - mcp__google__get_todays_events
+      - mcp__github__*
+      - mcp__notion__*
+      - mcp__linear__*
+      - mcp__slack__*
 
   codex:
     command: codex
