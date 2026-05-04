@@ -18,3 +18,14 @@ build/
 
 # macOS
 .DS_Store
+
+# PyInstaller output
+dist/
+build/brain/
+
+# Compiled binaries — run `pyinstaller brain.spec` to rebuild
+macos/BrainSquared/Resources/BrainServer
+
+# Xcode derived data
+macos/BrainSquared.xcodeproj/xcuserdata/
+macos/BrainSquared.xcodeproj/project.xcworkspace/xcuserdata/

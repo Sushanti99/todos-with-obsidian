@@ -1,0 +1,351 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07563BDCC77587382A74FA35 /* BrainSquaredApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD606C114463BD9C737C8F34 /* BrainSquaredApp.swift */; };
+		56FFD7638609806F29755CE1 /* BrainLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6D3D1D35E1F7A6952820ECF /* BrainLogoView.swift */; };
+		5A2B32A4D27385966FEE5234 /* BrainConfigWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3FF1FF2BEFAD994330A4F9 /* BrainConfigWriter.swift */; };
+		823BF92813DE82ABCD139694 /* ServerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 566938428204E8C0969B2EFB /* ServerManager.swift */; };
+		872510A1EC18AAFCBA40C6FC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB02971B187F2C64690253E /* ContentView.swift */; };
+		A8231BA507D78AA35D4D201E /* CLIInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F5318D9D2548226609FCD2 /* CLIInstaller.swift */; };
+		BB669BF3899168A4883E420B /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CA3B942378D01C6988EA82 /* KeychainHelper.swift */; };
+		C1FC92ED385C4578FA546DB5 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B19837488DDF5F6267FCDA2 /* OnboardingView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0B19837488DDF5F6267FCDA2 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		1AB02971B187F2C64690253E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		566938428204E8C0969B2EFB /* ServerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerManager.swift; sourceTree = "<group>"; };
+		5F3FF1FF2BEFAD994330A4F9 /* BrainConfigWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrainConfigWriter.swift; sourceTree = "<group>"; };
+		62CA3B942378D01C6988EA82 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		BBD54A77ADD2B846FACD87D5 /* BrainSquared.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrainSquared.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD606C114463BD9C737C8F34 /* BrainSquaredApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrainSquaredApp.swift; sourceTree = "<group>"; };
+		D6D3D1D35E1F7A6952820ECF /* BrainLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrainLogoView.swift; sourceTree = "<group>"; };
+		E6F5318D9D2548226609FCD2 /* CLIInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIInstaller.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0AA880340971D5F105536DA7 = {
+			isa = PBXGroup;
+			children = (
+				6EB979A94F7DCA42752167CE /* BrainSquared */,
+				70105747D55DDAEAEB22FD6F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		41351251F2A85EA35E2BC545 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				5F3FF1FF2BEFAD994330A4F9 /* BrainConfigWriter.swift */,
+				D6D3D1D35E1F7A6952820ECF /* BrainLogoView.swift */,
+				CD606C114463BD9C737C8F34 /* BrainSquaredApp.swift */,
+				E6F5318D9D2548226609FCD2 /* CLIInstaller.swift */,
+				1AB02971B187F2C64690253E /* ContentView.swift */,
+				62CA3B942378D01C6988EA82 /* KeychainHelper.swift */,
+				0B19837488DDF5F6267FCDA2 /* OnboardingView.swift */,
+				566938428204E8C0969B2EFB /* ServerManager.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		6EB979A94F7DCA42752167CE /* BrainSquared */ = {
+			isa = PBXGroup;
+			children = (
+				41351251F2A85EA35E2BC545 /* Sources */,
+			);
+			path = BrainSquared;
+			sourceTree = "<group>";
+		};
+		70105747D55DDAEAEB22FD6F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BBD54A77ADD2B846FACD87D5 /* BrainSquared.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7D4692CFD9A8AF8C2C87EC28 /* BrainSquared */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 58693F9731DB3D9E65A424B4 /* Build configuration list for PBXNativeTarget "BrainSquared" */;
+			buildPhases = (
+				1F38665364C54CAFB3406938 /* Sources */,
+				70BA41B14DF7892CA8DCB288 /* Copy Bundle Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BrainSquared;
+			packageProductDependencies = (
+			);
+			productName = BrainSquared;
+			productReference = BBD54A77ADD2B846FACD87D5 /* BrainSquared.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		514CE7E981557FCB2BDD81AC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					7D4692CFD9A8AF8C2C87EC28 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 88A8BB9B61451A7BF75B0C8E /* Build configuration list for PBXProject "BrainSquared" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 0AA880340971D5F105536DA7;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 70105747D55DDAEAEB22FD6F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7D4692CFD9A8AF8C2C87EC28 /* BrainSquared */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		70BA41B14DF7892CA8DCB288 /* Copy Bundle Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/BrainSquared/Resources/BrainServer",
+				"$(PROJECT_DIR)/BrainSquared/Resources/AppIcon.icns",
+				"$(PROJECT_DIR)/BrainSquared/Resources/brain-logo.png",
+			);
+			name = "Copy Bundle Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(EXECUTABLE_FOLDER_PATH)/BrainServer",
+				"$(BUILT_PRODUCTS_DIR)/$(WRAPPER_NAME)/Contents/Resources/AppIcon.icns",
+				"$(BUILT_PRODUCTS_DIR)/$(WRAPPER_NAME)/Contents/Resources/brain-logo.png",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# BrainServer executable\ncp \"${PROJECT_DIR}/BrainSquared/Resources/BrainServer\" \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/BrainServer\"\nchmod +x \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/BrainServer\"\n# App icon + logo into Contents/Resources\nRESOURCES=\"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Resources\"\nmkdir -p \"$RESOURCES\"\ncp \"${PROJECT_DIR}/BrainSquared/Resources/AppIcon.icns\" \"$RESOURCES/AppIcon.icns\"\ncp \"${PROJECT_DIR}/BrainSquared/Resources/brain-logo.png\" \"$RESOURCES/brain-logo.png\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1F38665364C54CAFB3406938 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A2B32A4D27385966FEE5234 /* BrainConfigWriter.swift in Sources */,
+				56FFD7638609806F29755CE1 /* BrainLogoView.swift in Sources */,
+				07563BDCC77587382A74FA35 /* BrainSquaredApp.swift in Sources */,
+				A8231BA507D78AA35D4D201E /* CLIInstaller.swift in Sources */,
+				872510A1EC18AAFCBA40C6FC /* ContentView.swift in Sources */,
+				BB669BF3899168A4883E420B /* KeychainHelper.swift in Sources */,
+				C1FC92ED385C4578FA546DB5 /* OnboardingView.swift in Sources */,
+				823BF92813DE82ABCD139694 /* ServerManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		789B71F761E4D2FBB0D3E855 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = BrainSquared;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		8A5515C3817A0F9B464CD261 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = BrainSquared;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		A2A880370492C6DDEBD60CC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BrainSquared/Resources/BrainSquared.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = BrainSquared/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = so.brainsquared.app;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F9B42C5C88E036B4AA5EDF26 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BrainSquared/Resources/BrainSquared.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = BrainSquared/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = so.brainsquared.app;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		58693F9731DB3D9E65A424B4 /* Build configuration list for PBXNativeTarget "BrainSquared" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2A880370492C6DDEBD60CC3 /* Debug */,
+				F9B42C5C88E036B4AA5EDF26 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		88A8BB9B61451A7BF75B0C8E /* Build configuration list for PBXProject "BrainSquared" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				789B71F761E4D2FBB0D3E855 /* Debug */,
+				8A5515C3817A0F9B464CD261 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 514CE7E981557FCB2BDD81AC /* Project object */;
+}

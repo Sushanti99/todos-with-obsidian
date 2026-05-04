@@ -1,0 +1,63 @@
+name: BrainSquared
+options:
+  bundleIdPrefix: so.brainsquared
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    PRODUCT_NAME: BrainSquared
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  BrainSquared:
+    type: application
+    platform: macOS
+    info:
+      path: BrainSquared/Resources/Info.plist
+      properties:
+        CFBundleName: BrainSquared
+        CFBundleDisplayName: "brain²"
+        CFBundleIdentifier: so.brainsquared.app
+        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.0.0"
+        NSHumanReadableCopyright: "© 2025 BrainSquared"
+        NSPrincipalClass: NSApplication
+        LSMinimumSystemVersion: "13.0"
+        LSApplicationCategoryType: app-category-productivity
+        NSHighResolutionCapable: true
+        NSSupportsAutomaticGraphicsSwitching: true
+        CFBundleIconFile: AppIcon
+    entitlements:
+      path: BrainSquared/Resources/BrainSquared.entitlements
+    sources:
+      - path: BrainSquared/Sources
+    settings:
+      base:
+        INFOPLIST_FILE: BrainSquared/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BrainSquared/Resources/BrainSquared.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: so.brainsquared.app
+    postBuildScripts:
+      - name: Copy Bundle Resources
+        script: |
+          # BrainServer executable
+          cp "${PROJECT_DIR}/BrainSquared/Resources/BrainServer" "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/BrainServer"
+          chmod +x "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/BrainServer"
+          # App icon + logo into Contents/Resources
+          RESOURCES="${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Resources"
+          mkdir -p "$RESOURCES"
+          cp "${PROJECT_DIR}/BrainSquared/Resources/AppIcon.icns" "$RESOURCES/AppIcon.icns"
+          cp "${PROJECT_DIR}/BrainSquared/Resources/brain-logo.png" "$RESOURCES/brain-logo.png"
+        inputFiles:
+          - $(PROJECT_DIR)/BrainSquared/Resources/BrainServer
+          - $(PROJECT_DIR)/BrainSquared/Resources/AppIcon.icns
+          - $(PROJECT_DIR)/BrainSquared/Resources/brain-logo.png
+        outputFiles:
+          - $(BUILT_PRODUCTS_DIR)/$(EXECUTABLE_FOLDER_PATH)/BrainServer
+          - $(BUILT_PRODUCTS_DIR)/$(WRAPPER_NAME)/Contents/Resources/AppIcon.icns
+          - $(BUILT_PRODUCTS_DIR)/$(WRAPPER_NAME)/Contents/Resources/brain-logo.png
