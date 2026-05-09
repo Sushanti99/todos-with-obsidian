@@ -21,6 +21,13 @@ all_datas = (
         ('brain/templates', 'brain/templates'),
         ('brainsquared-favicon.ico', '.'),
         ('credentials.json', '.'),
+        # Root-level legacy modules loaded dynamically by brain.integration_context
+        # (_load_legacy_module). Without these, daily-note integration data is empty.
+        ('config.py', '.'),
+        ('gmail_client.py', '.'),
+        ('calendar_client.py', '.'),
+        ('notion_client.py', '.'),
+        ('news_client.py', '.'),
     ]
 )
 
@@ -53,9 +60,14 @@ all_hiddenimports = (
         'feedparser',
         'google.auth',
         'google.auth.transport',
+        'google.auth.transport.requests',
         'google.oauth2',
+        'google.oauth2.credentials',
+        'google_auth_oauthlib',
+        'google_auth_oauthlib.flow',
         'googleapiclient',
         'googleapiclient.discovery',
+        'requests',
     ]
 )
 
