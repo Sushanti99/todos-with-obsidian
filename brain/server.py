@@ -306,7 +306,11 @@ def create_app(runtime: AppRuntime) -> FastAPI:
             await websocket.close(code=1008)
             return
 
-        await websocket.send_json(_session_payload(runtime, session))
+        try:
+            await websocket.send_json(_session_payload(runtime, session))
+        except Exception:
+            await runtime.session_manager.detach_websocket(websocket)
+            return
 
         try:
             while True:

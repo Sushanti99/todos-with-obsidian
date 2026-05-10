@@ -7,6 +7,12 @@ token.json
 
 # Supabase config (contains URL + anon key — generated locally, not committed)
 macos/BrainSquared/Sources/SupabaseConfig.swift
+electron/SupabaseConfig.js
+
+# Electron
+electron/node_modules/
+electron/dist/
+electron/resources/BrainServer/
 
 # Claude Code local config
 .claude/
